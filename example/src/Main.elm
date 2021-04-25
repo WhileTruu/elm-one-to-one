@@ -8,6 +8,10 @@ import OneToOne exposing (OneToOne)
 import Set exposing (Set)
 
 
+
+-- MODEL
+
+
 type alias Model =
     { colorToNumber : OneToOne String Int
     , activeColor : Maybe String
@@ -21,6 +25,10 @@ initialModel =
     , activeColor = Nothing
     , activeNumber = Nothing
     }
+
+
+
+-- UPDATE
 
 
 type Msg
@@ -44,7 +52,7 @@ update msg model =
                 |> Maybe.withDefault
                     { model
                         | activeNumber = Just number
-                        , colorToNumber = OneToOne.removeBySecond number model.colorToNumber
+                        , colorToNumber = OneToOne.removeSecond number model.colorToNumber
                     }
 
         ColorClicked color ->
@@ -60,7 +68,7 @@ update msg model =
                 |> Maybe.withDefault
                     { model
                         | activeColor = Just color
-                        , colorToNumber = OneToOne.removeByFirst color model.colorToNumber
+                        , colorToNumber = OneToOne.removeFirst color model.colorToNumber
                     }
 
 
@@ -109,7 +117,7 @@ view model =
 
                                   else
                                     style "" ""
-                                , OneToOne.getFirst number model.colorToNumber
+                                , OneToOne.first number model.colorToNumber
                                     |> Maybe.map (style "background-color")
                                     |> Maybe.withDefault (style "" "")
                                 ]
@@ -129,6 +137,10 @@ colors =
 numbers : Set Int
 numbers =
     Set.fromList [ 1, 2, 3 ]
+
+
+
+-- MAIN
 
 
 main : Program () Model Msg

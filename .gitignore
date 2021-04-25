@@ -1,3 +1,4 @@
 .idea
-example/index.html
 example/elm-stuff
+tests/VerifyExamples
+elm-stuff
