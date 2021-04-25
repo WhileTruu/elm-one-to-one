@@ -4,11 +4,12 @@ import Browser
 import Html exposing (Html, button, div)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import OneToOne exposing (OneToOne)
 import Set exposing (Set)
 
 
 type alias Model =
-    { list : List ( String, Int )
+    { colorToNumber : OneToOne String Int
     , activeColor : Maybe String
     , activeNumber : Maybe Int
     }
@@ -16,7 +17,7 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    { list = []
+    { colorToNumber = OneToOne.empty
     , activeColor = Nothing
     , activeNumber = Nothing
     }
@@ -37,13 +38,13 @@ update msg model =
                         { model
                             | activeColor = Nothing
                             , activeNumber = Nothing
-                            , list = addTo ( color, number ) model.list
+                            , colorToNumber = OneToOne.insert color number model.colorToNumber
                         }
                     )
                 |> Maybe.withDefault
                     { model
                         | activeNumber = Just number
-                        , list = removeSecond number model.list
+                        , colorToNumber = OneToOne.removeBySecond number model.colorToNumber
                     }
 
         ColorClicked color ->
@@ -53,51 +54,14 @@ update msg model =
                         { model
                             | activeColor = Nothing
                             , activeNumber = Nothing
-                            , list = addTo ( color, number ) model.list
+                            , colorToNumber = OneToOne.insert color number model.colorToNumber
                         }
                     )
                 |> Maybe.withDefault
                     { model
                         | activeColor = Just color
-                        , list = removeFirst color model.list
+                        , colorToNumber = OneToOne.removeByFirst color model.colorToNumber
                     }
-
-
-
--- ONE TO ONE
-
-
-addTo : ( String, Int ) -> List ( String, Int ) -> List ( String, Int )
-addTo pair list =
-    list
-        |> List.filter
-            (\( color, number ) ->
-                Tuple.first pair /= color && Tuple.second pair /= number
-            )
-        |> (::) pair
-
-
-removeFirst : String -> List ( String, Int ) -> List ( String, Int )
-removeFirst first list =
-    list
-        |> List.filter (Tuple.first >> (/=) first)
-
-
-removeSecond : Int -> List ( String, Int ) -> List ( String, Int )
-removeSecond second list =
-    list
-        |> List.filter (Tuple.second >> (/=) second)
-
-
-memberFirst : String -> List ( String, Int ) -> Bool
-memberFirst color list =
-    List.any (Tuple.first >> (==) color) list
-
-
-getFirst : Int -> List ( String, Int ) -> Maybe String
-getFirst number list =
-    List.Extra.find (Tuple.second >> (==) number) list
-        |> Maybe.map Tuple.first
 
 
 
@@ -121,7 +85,7 @@ view model =
 
                                   else
                                     style "" ""
-                                , if memberFirst color model.list then
+                                , if OneToOne.memberFirst color model.colorToNumber then
                                     style "background-color" color
 
                                   else
@@ -145,7 +109,7 @@ view model =
 
                                   else
                                     style "" ""
-                                , getFirst number model.list
+                                , OneToOne.getFirst number model.colorToNumber
                                     |> Maybe.map (style "background-color")
                                     |> Maybe.withDefault (style "" "")
                                 ]
